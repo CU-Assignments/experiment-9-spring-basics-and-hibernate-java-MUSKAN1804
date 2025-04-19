@@ -1,0 +1,55 @@
+// MediumLevelApp.java
+import javax.persistence.*;
+import org.hibernate.*;
+import org.hibernate.cfg.Configuration;
+
+@Entity
+@Table(name = "students")
+class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    private String name;
+    private int age;
+
+    public Student() {}
+    public Student(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    public String toString() {
+        return "Student{id=" + id + ", name=" + name + ", age=" + age + "}";
+    }
+}
+
+public class MediumLevelApp {
+    public static void main(String[] args) {
+        Configuration cfg = new Configuration().configure().addAnnotatedClass(Student.class);
+        SessionFactory factory = cfg.buildSessionFactory();
+        Session session = factory.openSession();
+
+        Student s1 = new Student("Ravi", 21);
+
+        Transaction tx = session.beginTransaction();
+        session.save(s1);  // CREATE
+        tx.commit();
+
+        // READ
+        Student student = session.get(Student.class, 1);
+        System.out.println("Fetched: " + student);
+
+        // UPDATE
+        tx = session.beginTransaction();
+        student.age = 25;
+        session.update(student);
+        tx.commit();
+
+        // DELETE
+        tx = session.beginTransaction();
+        session.delete(student);
+        tx.commit();
+
+        session.close();
+        factory.close();
+    }
+}
